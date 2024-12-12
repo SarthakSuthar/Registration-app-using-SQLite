@@ -44,7 +44,9 @@ public class RegistrationPage extends AppCompatActivity {
 
         initializeViews();
 
-        setUpDatePicker();
+        setUpDOB();
+
+        setUpDOJ();
 
         signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -230,9 +232,9 @@ public class RegistrationPage extends AppCompatActivity {
         confirmPasswordInput.setError(null);
     }
 
-    private void setUpDatePicker() {
+    private void setUpDOB() {
         TextInputEditText dobInput = findViewById(R.id.dobInput);
-        TextInputEditText dojInput = findViewById(R.id.dojInput);
+//        TextInputEditText dojInput = findViewById(R.id.dojInput);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -246,6 +248,48 @@ public class RegistrationPage extends AppCompatActivity {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
 
                 dobInput.setText(sdf.format(calendar.getTime()));
+//                dojInput.setText(sdf.format(calendar.getTime()));
+            }
+        };
+
+//        dojInput.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                new DatePickerDialog(RegistrationPage.this, dateSetListener,
+//                        calendar.get(Calendar.YEAR),
+//                        calendar.get(Calendar.MONTH),
+//                        calendar.get(Calendar.DAY_OF_MONTH)).show();
+//            }
+//        });
+
+        dobInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new DatePickerDialog(RegistrationPage.this, dateSetListener,
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+
+    }
+
+    private void setUpDOJ() {
+//        TextInputEditText dobInput = findViewById(R.id.dobInput);
+        TextInputEditText dojInput = findViewById(R.id.dojInput);
+
+        Calendar calendar = Calendar.getInstance();
+
+        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
+
+//                dobInput.setText(sdf.format(calendar.getTime()));
                 dojInput.setText(sdf.format(calendar.getTime()));
             }
         };
@@ -260,15 +304,15 @@ public class RegistrationPage extends AppCompatActivity {
             }
         });
 
-        dobInput.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new DatePickerDialog(RegistrationPage.this, dateSetListener,
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
+//        dobInput.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                new DatePickerDialog(RegistrationPage.this, dateSetListener,
+//                        calendar.get(Calendar.YEAR),
+//                        calendar.get(Calendar.MONTH),
+//                        calendar.get(Calendar.DAY_OF_MONTH)).show();
+//            }
+//        });
 
     }
 

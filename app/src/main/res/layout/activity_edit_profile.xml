@@ -52,7 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Name"
-                android:lines="1"
+                android:maxLines="1"
                 android:textColor="@color/black"
                 android:layout_marginVertical="20sp"
                 android:textColorHint="@color/black"/>
@@ -108,7 +108,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Department"
-                android:lines="1"
+                android:maxLines="1"
                 android:textColor="@color/black"
                 android:layout_marginVertical="20sp"
                 android:textColorHint="@color/black"/>
@@ -118,7 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Designation"
-                android:lines="1"
+                android:maxLines="1"
                 android:textColor="@color/black"
                 android:layout_marginVertical="20sp"
                 android:textColorHint="@color/black"/>
@@ -128,7 +128,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="City"
-                android:lines="1"
+                android:maxLines="1"
                 android:textColor="@color/black"
                 android:layout_marginVertical="20sp"
                 android:textColorHint="@color/black"/>
@@ -138,7 +138,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="State"
-                android:lines="1"
+                android:maxLines="1"
                 android:textColor="@color/black"
                 android:layout_marginVertical="20sp"
                 android:textColorHint="@color/black"/>
@@ -148,7 +148,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Country"
-                android:lines="1"
+                android:maxLines="1"
                 android:textColor="@color/black"
                 android:layout_marginVertical="20sp"
                 android:textColorHint="@color/black"/>
@@ -158,6 +158,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Password"
+                android:maxLines="1"
                 android:textColor="@color/black"
                 android:inputType="numberPassword"
                 android:layout_marginVertical="20sp"
@@ -168,6 +169,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Confirm Password"
+                android:maxLines="1"
                 android:inputType="numberPassword"
                 android:textColor="@color/black"
                 android:layout_marginVertical="20sp"
