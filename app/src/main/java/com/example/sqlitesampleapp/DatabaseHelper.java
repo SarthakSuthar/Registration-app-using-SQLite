@@ -142,4 +142,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TABLE_USERS, KEY_EMAIL + "=?", new String[]{userEmail});
     }
+
+    public Cursor getAllUsers() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_USERS,
+                new String[]{KEY_NAME, KEY_EMAIL, KEY_PHONE},
+                null, null, null, null, null);
+    }
 }
