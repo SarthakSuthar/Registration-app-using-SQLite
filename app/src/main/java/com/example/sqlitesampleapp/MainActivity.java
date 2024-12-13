@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Check for a valid password
         if (TextUtils.isEmpty(password)) {
-            passwordInput.setError("Password cannot be empty");
+            passwordInput.setError("Password cannot be empty"); //red alert if field not filled
             focusView = passwordInput;
             cancel = true;
         }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -56,9 +55,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 2){
             db.execSQL("ALTER TABLE users ADD COLUMN designation TEXT");
         }
-//        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-//        db.execSQL("ALTER TABLE users ADD COLUMN designation TEXT");
-//        onCreate(db);
     }
 
     // Add User
