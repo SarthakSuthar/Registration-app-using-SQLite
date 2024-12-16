@@ -4,12 +4,18 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDatabase";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String TABLE_USERS = "users";
 
     // Column names
@@ -27,6 +33,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_LATITUDE = "latitude";
     private static final String KEY_LONGITUDE = "longitude";
+    private static final String TABLE_NOTIFICATIONS = "notifications";
+    private static final String KEY_NOTIFICATION_ID = "id";
+    private static final String KEY_NOTIFICATION_TITLE = "title";
+    private static final String KEY_NOTIFICATION_MESSAGE = "message";
+    private static final String KEY_NOTIFICATION_IMAGE = "image_url";
+    private static final String KEY_NOTIFICATION_TIMESTAMP = "timestamp";
 
     //long lati
 
@@ -53,15 +65,60 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_LATITUDE + " REAL,"
                 + KEY_LONGITUDE + " REAL"+ ")";
         db.execSQL(CREATE_USERS_TABLE);
+
+        String CREATE_NOTIFICATIONS_TABLE = "CREATE TABLE " + TABLE_NOTIFICATIONS + "("
+                + KEY_NOTIFICATION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_NOTIFICATION_TITLE + " TEXT,"
+                + KEY_NOTIFICATION_MESSAGE + " TEXT,"
+                + KEY_NOTIFICATION_IMAGE + " TEXT,"
+                + KEY_NOTIFICATION_TIMESTAMP + " TEXT)";
+        db.execSQL(CREATE_NOTIFICATIONS_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-        if (oldVersion < 3){
-            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_LATITUDE + " REAL");
-            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_LONGITUDE + " REAL");
+        if (oldVersion < 4) {
+            Cursor cursor = null;
+            try {
+                // Query table info to get existing columns
+                cursor = db.rawQuery("PRAGMA table_info(" + TABLE_USERS + ")", null);
+
+                // Store existing column names in a set for fast lookup
+                List<String> columnNames = new ArrayList<>();
+                int nameIndex = cursor.getColumnIndex("name");
+
+                while (cursor.moveToNext()) {
+                    columnNames.add(cursor.getString(nameIndex));
+                }
+
+                // Check and add missing columns
+                if (!columnNames.contains(KEY_LATITUDE)) {
+                    try {
+                        db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_LATITUDE + " REAL");
+                        Log.i("DatabaseHelper", "Column " + KEY_LATITUDE + " added successfully.");
+                    } catch (SQLiteException e) {
+                        Log.e("DatabaseHelper", "Failed to add column: " + KEY_LATITUDE, e);
+                    }
+                }
+
+                if (!columnNames.contains(KEY_LONGITUDE)) {
+                    try {
+                        db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_LONGITUDE + " REAL");
+                        Log.i("DatabaseHelper", "Column " + KEY_LONGITUDE + " added successfully.");
+                    } catch (SQLiteException e) {
+                        Log.e("DatabaseHelper", "Failed to add column: " + KEY_LONGITUDE, e);
+                    }
+                }
+            } catch (Exception e) {
+                Log.e("DatabaseHelper", "Error during table upgrade", e);
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
         }
+
     }
 
     // Add User
@@ -146,7 +203,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public int deleteUser(String userEmail) {
         SQLiteDatabase db = this.getWritableDatabase();
+        cleanupOldNotifications();
         return db.delete(TABLE_USERS, KEY_EMAIL + "=?", new String[]{userEmail});
+
+    }
+
+    public void cleanupOldNotifications() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "DELETE FROM " + TABLE_NOTIFICATIONS +
+                " WHERE id NOT IN (SELECT id FROM " + TABLE_NOTIFICATIONS + ")";
+        db.execSQL(query);
     }
 
     public Cursor getAllUsers() {
@@ -173,5 +239,89 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{KEY_LATITUDE, KEY_LONGITUDE},
                 KEY_EMAIL + "=?", new String[]{email},
                 null, null, null);
+    }
+
+    public long saveNotification(NotificationModel notification) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_NOTIFICATION_TITLE, notification.getTitle());
+        values.put(KEY_NOTIFICATION_MESSAGE, notification.getMessage());
+        values.put(KEY_NOTIFICATION_IMAGE, notification.getImageUrl());
+        values.put(KEY_NOTIFICATION_TIMESTAMP, notification.getTimestamp());
+
+        return db.insert(TABLE_NOTIFICATIONS, null, values);
+    }
+
+    public List<NotificationModel> getAllNotifications() {
+        List<NotificationModel> notifications = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_NOTIFICATIONS,
+                null, null, null, null, null,
+                KEY_NOTIFICATION_TIMESTAMP + " DESC");
+
+//        if (cursor.moveToFirst()) {
+//            do {
+//                NotificationModel notification = new NotificationModel(
+//                        cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_TITLE)),
+//                        cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_MESSAGE)),
+//                        cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_IMAGE)),
+//                        cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_TIMESTAMP))
+//                );
+//                notifications.add(notification);
+//            } while (cursor.moveToNext());
+//        }
+
+//        if (cursor != null) {
+//            try {
+//                if (cursor.moveToFirst()) {
+//                    do {
+//                        NotificationModel notification = new NotificationModel(
+//                                cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_TITLE)),
+//                                cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_MESSAGE)),
+//                                cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_IMAGE)),
+//                                cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_TIMESTAMP))
+//                        );
+//                        notifications.add(notification);
+//                    } while (cursor.moveToNext());
+//                }
+//            } finally {
+//                cursor.close();
+//            }
+//        }
+
+        if (cursor != null) {
+            try {
+                int titleIndex = cursor.getColumnIndex(KEY_NOTIFICATION_TITLE);
+                int messageIndex = cursor.getColumnIndex(KEY_NOTIFICATION_MESSAGE);
+                int imageIndex = cursor.getColumnIndex(KEY_NOTIFICATION_IMAGE);
+                int timestampIndex = cursor.getColumnIndex(KEY_NOTIFICATION_TIMESTAMP);
+
+                // Check if column indices are valid
+                if (titleIndex != -1 && messageIndex != -1 &&
+                        imageIndex != -1 && timestampIndex != -1) {
+
+                    while (cursor.moveToNext()) {
+                        String title = cursor.isNull(titleIndex) ? "" : cursor.getString(titleIndex);
+                        String message = cursor.isNull(messageIndex) ? "" : cursor.getString(messageIndex);
+                        String imageUrl = cursor.isNull(imageIndex) ? "" : cursor.getString(imageIndex);
+                        String timestamp = cursor.isNull(timestampIndex) ? "" : cursor.getString(timestampIndex);
+
+                        NotificationModel notification = new NotificationModel(
+                                title, message, imageUrl, timestamp
+                        );
+                        notifications.add(notification);
+                    }
+                } else {
+                    Log.e("DatabaseHelper", "Invalid column indices in cursor");
+                }
+            } catch (Exception e) {
+                Log.e("DatabaseHelper", "Error reading notifications", e);
+            } finally {
+                cursor.close();
+            }
+        }
+
+        return notifications;
     }
 }

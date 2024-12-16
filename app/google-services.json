@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "84790750169",
+    "project_id": "sqlite-sample-app",
+    "storage_bucket": "sqlite-sample-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:84790750169:android:1465845b8cf508e3a287c8",
+        "android_client_info": {
+          "package_name": "com.example.sqlitesampleapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYq-HO5WBBY0OasiHUQ2j1cCG312l6UTI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

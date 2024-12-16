@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -44,4 +45,8 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(libs.play.services.location)
+    implementation (libs.firebase.messaging)
+    implementation (libs.glide)
+    annotationProcessor (libs.compiler)
+    implementation (libs.firebase.messaging.v2341)
 }

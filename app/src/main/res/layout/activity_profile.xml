@@ -47,4 +47,19 @@
             android:padding="16dp" />
 
     </ScrollView>
+
+
+    <Button
+        android:id="@+id/notificationBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Notifications"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:padding="10sp"
+        android:layout_marginHorizontal="20sp"/>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

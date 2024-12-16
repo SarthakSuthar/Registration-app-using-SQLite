@@ -1,5 +1,9 @@
 [versions]
 agp = "8.5.2"
+firebaseMessaging = "24.1.0"
+firebaseMessagingVersion = "23.4.1"
+glide = "4.12.0"
+googleServices = "4.4.2"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -11,8 +15,14 @@ legacySupportV4 = "1.0.0"
 lifecycleLivedataKtx = "2.8.7"
 lifecycleViewmodelKtx = "2.8.7"
 playServicesLocation = "21.3.0"
+googleGmsGoogleServices = "4.4.2"
 
 [libraries]
+compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessaging" }
+firebase-messaging-v2341 = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessagingVersion" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -27,4 +37,5 @@ play-services-location = { module = "com.google.android.gms:play-services-locati
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 

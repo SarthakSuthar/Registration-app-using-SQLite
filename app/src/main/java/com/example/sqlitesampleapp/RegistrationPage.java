@@ -40,6 +40,9 @@ public class RegistrationPage extends AppCompatActivity {
     private TextInputEditText passwordInput ;
     private TextInputEditText confirmPasswordInput ;
 
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
+
     private DatabaseHelper databaseHelper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +112,8 @@ public class RegistrationPage extends AppCompatActivity {
                                 if (registrationResult > 0) {
                                     Toast.makeText(RegistrationPage.this, "Registration Successful", Toast.LENGTH_SHORT).show();
 
+                                    requestLocationPermission();
+
                                     Intent intent = new Intent(RegistrationPage.this, ProfileActivity.class);
                                     intent.putExtra("EMAIL", email);
                                     startActivity(intent);
@@ -136,6 +141,13 @@ public class RegistrationPage extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private void requestLocationPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            Toast.makeText(this, "Location permission is required for user registration.", Toast.LENGTH_SHORT).show();
+        }
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
     }
 
     private boolean validateInputs(String name, String email, String phoneNo,

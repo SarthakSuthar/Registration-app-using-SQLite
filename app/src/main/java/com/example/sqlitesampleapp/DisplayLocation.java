@@ -1,5 +1,7 @@
 package com.example.sqlitesampleapp;
 
+import static android.content.Intent.getIntent;
+
 import android.database.Cursor;
 import android.os.Bundle;
 import android.webkit.WebSettings;
