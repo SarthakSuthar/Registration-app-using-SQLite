@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "UserDatabase";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String TABLE_USERS = "users";
 
     // Column names
@@ -25,6 +25,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_STATE = "state";
     private static final String KEY_COUNTRY = "country";
     private static final String KEY_PASSWORD = "password";
+    private static final String KEY_LATITUDE = "latitude";
+    private static final String KEY_LONGITUDE = "longitude";
+
+    //long lati
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -45,22 +49,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_CITY + " TEXT,"
                 + KEY_STATE + " TEXT,"
                 + KEY_COUNTRY + " TEXT,"
-                + KEY_PASSWORD + " TEXT" + ")";
+                + KEY_PASSWORD + " TEXT,"
+                + KEY_LATITUDE + " REAL,"
+                + KEY_LONGITUDE + " REAL"+ ")";
         db.execSQL(CREATE_USERS_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-        if (oldVersion < 2){
-            db.execSQL("ALTER TABLE users ADD COLUMN designation TEXT");
+        if (oldVersion < 3){
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_LATITUDE + " REAL");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_LONGITUDE + " REAL");
         }
     }
 
     // Add User
     public long addUser(String name, String email, String phone,
                         String dob, String doj,  String department, String designation,
-                        String city, String state, String country, String password) {
+                        String city, String state, String country, String password,
+                        double latitude, double longitude) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_NAME, name);
@@ -74,6 +82,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_STATE, state);
         values.put(KEY_COUNTRY, country);
         values.put(KEY_PASSWORD, password);
+        values.put(KEY_LATITUDE, latitude);
+        values.put(KEY_LONGITUDE, longitude);
 
         return db.insert(TABLE_USERS, null, values);
     }
@@ -144,5 +154,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_USERS,
                 new String[]{KEY_NAME, KEY_EMAIL, KEY_PHONE},
                 null, null, null, null, null);
+    }
+
+    public int updateUserLocation(String email, double latitude, double longitude) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_LATITUDE, latitude);
+        values.put(KEY_LONGITUDE, longitude);
+
+        return db.update(TABLE_USERS, values,
+                KEY_EMAIL + "=?", new String[]{email});
+    }
+
+    // Method to get user's location
+    public Cursor getUserLocation(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_USERS,
+                new String[]{KEY_LATITUDE, KEY_LONGITUDE},
+                KEY_EMAIL + "=?", new String[]{email},
+                null, null, null);
     }
 }

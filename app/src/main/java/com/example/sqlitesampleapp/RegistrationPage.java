@@ -2,6 +2,8 @@ package com.example.sqlitesampleapp;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -9,13 +11,19 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;
+
+import android.Manifest;
 
 public class RegistrationPage extends AppCompatActivity {
 
@@ -73,32 +81,60 @@ public class RegistrationPage extends AppCompatActivity {
         String password = Objects.requireNonNull(passwordInput.getText()).toString().trim();
         String confirmPassword = Objects.requireNonNull(confirmPasswordInput.getText()).toString().trim();
         
-        if (validateInputs(name, email, phoneNo, dob, doj, department, designation, city, state, country, password, confirmPassword)) {
-         if (databaseHelper.checkEmail(email)){
-             emailInput.setError("Email already exists");
-             emailInput.requestFocus();
-             return;
-         }
+        if (validateInputs(name, email, phoneNo, dob, doj, department,
+                designation, city, state, country, password, confirmPassword)) {
+            if (databaseHelper.checkEmail(email)) {
+                emailInput.setError("Email already exists");
+                emailInput.requestFocus();
+                return;
+            }
 
-//         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
-//         String obj = sdf.format(Calendar.getInstance().getTime());
 
-         long result = databaseHelper.addUser(
-                 name, email, phoneNo, dob, doj,
-                 department, designation, city,
-                 state, country, password
-         );
+            FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-         if (result > 0){
-             Toast.makeText(this,"Registration Successful",Toast.LENGTH_SHORT).show();
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.getLastLocation()
+                        .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                double latitude = location != null ? location.getLatitude() : 0.0;
+                                double longitude = location != null ? location.getLongitude() : 0.0;
 
-             Intent intent = new Intent(RegistrationPage.this,ProfileActivity.class);
-             intent.putExtra("EMAIL",email);
-             startActivity(intent);
-             finish();
-         }else {
-             Toast.makeText(this,"Registration Failed",Toast.LENGTH_SHORT).show();
-         }
+                                // Pass location to addUser method
+                                long registrationResult = databaseHelper.addUser(name, email, phoneNo, dob, doj,
+                                        department, designation, city, state, country,
+                                        password, latitude, longitude);
+
+                                if (registrationResult > 0) {
+                                    Toast.makeText(RegistrationPage.this, "Registration Successful", Toast.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent(RegistrationPage.this, ProfileActivity.class);
+                                    intent.putExtra("EMAIL", email);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    Toast.makeText(RegistrationPage.this, "Registration Failed", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            } else {
+                // If location permission not granted, pass 0,0
+                long registrationResult = databaseHelper.addUser(name, email, phoneNo, dob, doj,
+                        department, designation, city, state, country,
+                        password, 0, 0);
+
+                if (registrationResult > 0) {
+                    Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(RegistrationPage.this, ProfileActivity.class);
+                    intent.putExtra("EMAIL", email);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(this, "Registration Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     }
 
@@ -234,7 +270,6 @@ public class RegistrationPage extends AppCompatActivity {
 
     private void setUpDOB() {
         TextInputEditText dobInput = findViewById(R.id.dobInput);
-//        TextInputEditText dojInput = findViewById(R.id.dojInput);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -248,19 +283,8 @@ public class RegistrationPage extends AppCompatActivity {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
 
                 dobInput.setText(sdf.format(calendar.getTime()));
-//                dojInput.setText(sdf.format(calendar.getTime()));
             }
         };
-
-//        dojInput.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                new DatePickerDialog(RegistrationPage.this, dateSetListener,
-//                        calendar.get(Calendar.YEAR),
-//                        calendar.get(Calendar.MONTH),
-//                        calendar.get(Calendar.DAY_OF_MONTH)).show();
-//            }
-//        });
 
         dobInput.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -303,16 +327,6 @@ public class RegistrationPage extends AppCompatActivity {
                         calendar.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
-
-//        dobInput.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                new DatePickerDialog(RegistrationPage.this, dateSetListener,
-//                        calendar.get(Calendar.YEAR),
-//                        calendar.get(Calendar.MONTH),
-//                        calendar.get(Calendar.DAY_OF_MONTH)).show();
-//            }
-//        });
 
     }
 

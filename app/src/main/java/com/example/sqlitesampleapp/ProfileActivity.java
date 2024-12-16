@@ -1,35 +1,33 @@
 package com.example.sqlitesampleapp;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
+import android.Manifest;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class ProfileActivity extends AppCompatActivity {
-
-//    private TextView nameTextView;
-//    private TextView emailTextView;
-//    private TextView phoneTextView;
-//    private TextView dobTextView;
-//    private TextView dojTextView;
-//    private TextView departmentTextView;
-//    private TextView designationTextView;
-//    private TextView cityTextView;
-//    private TextView stateTextView;
-//    private TextView countryTextView;
 
 
     private DatabaseHelper databaseHelper;
     private LinearLayout userListContainer;
 
-//    private String userEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,29 +39,6 @@ public class ProfileActivity extends AppCompatActivity {
 
 
         displayUsers();
-
-//        initializeViews();
-
-//        userEmail = getIntent().getStringExtra("EMAIL");
-//
-//        if (userEmail == null || userEmail.isEmpty()) {
-//            Toast.makeText(this, "User email not found", Toast.LENGTH_SHORT).show();
-//            finish();
-////            return;
-//        }
-
-//        loadUserData();
-
-//        Button editBtn = findViewById(R.id.editProfileButton);
-//
-//        editBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(ProfileActivity.this, EditProfile.class);
-//                intent.putExtra("EMAIL", userEmail);
-//                startActivity(intent);
-//            }
-//        });
 
     }
 
@@ -89,10 +64,6 @@ public class ProfileActivity extends AppCompatActivity {
                 int emailIndex = cursor.getColumnIndex("email");
                 int phoneIndex = cursor.getColumnIndex("phone");
 
-                // Set text for each TextView
-//                nameTextView.setText(cursor.getString(nameIndex));
-//                emailTextView.setText(cursor.getString(emailIndex));
-//                phoneTextView.setText(cursor.getString(phoneIndex));
 
                 nameTextView.setText(nameIndex != -1 ?
                         (cursor.getString(nameIndex) != null ? cursor.getString(nameIndex) : "N/A")
@@ -120,11 +91,16 @@ public class ProfileActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 });
-                // Mask the password for security
-//                String password = cursor.getString(phoneIndex);
-//                phoneTextView.setText("*".repeat(Math.max(0, password.length())));
 
-                // Add the card view to the container
+                FloatingActionButton mapBtn = cardView.findViewById(R.id.mapBtn);
+
+                mapBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openUserLocation(userEmail);
+                    }
+                });
+
                 userListContainer.addView(cardView);
 
             } while (cursor.moveToNext());
@@ -135,59 +111,72 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    private void openUserLocation(String userEmail){
+        Intent intent = new Intent(ProfileActivity.this, DisplayLocation.class);
+        intent.putExtra("EMAIL", userEmail);
+        startActivity(intent);
+    }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        loadUserData();
-//    }
-
-//    private void loadUserData() {
-//
-//        Cursor cursor = databaseHelper.getUserDetails(userEmail);
-//
-//        if (cursor != null && cursor.moveToFirst()){
-//            int nameIndex = cursor.getColumnIndex("name");
-//            int emailIndex = cursor.getColumnIndex("email");
-//            int phoneIndex = cursor.getColumnIndex("phone");
-//            int dobIndex = cursor.getColumnIndex("dob");
-//            int dojIndex = cursor.getColumnIndex("doj");
-//            int departmentIndex = cursor.getColumnIndex("department");
-//            int designationIndex = cursor.getColumnIndex("designation");
-//            int cityIndex = cursor.getColumnIndex("city");
-//            int stateIndex = cursor.getColumnIndex("state");
-//            int countryIndex = cursor.getColumnIndex("country");
-//
-//            nameTextView.setText(cursor.getString(nameIndex));
-//            emailTextView.setText(cursor.getString(emailIndex));
-//            phoneTextView.setText(cursor.getString(phoneIndex));
-//            dobTextView.setText(cursor.getString(dobIndex));
-//            dojTextView.setText(cursor.getString(dojIndex));
-//            departmentTextView.setText(cursor.getString(departmentIndex));
-//            designationTextView.setText(cursor.getString(designationIndex));
-//            cityTextView.setText(cursor.getString(cityIndex));
-//            stateTextView.setText(cursor.getString(stateIndex));
-//            countryTextView.setText(cursor.getString(countryIndex));
-//
-//            cursor.close();
-//        }else {
-//            Toast.makeText(this,"User not found",Toast.LENGTH_SHORT).show();
-//            finish();
+//    private void openUserLocation(String userEmail) {
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            // Request permissions if not granted
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//                    LOCATION_PERMISSION_REQUEST_CODE);
+//            return;
 //        }
 //
+//        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+//        fusedLocationClient.getLastLocation()
+//                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+//                    @Override
+//                    public void onSuccess(Location location) {
+//                        if (location != null){
+//                            double latitude = location.getLatitude();
+//                            double longitude = location.getLongitude();
+//
+//                            // Save location to database
+//                            DatabaseHelper databaseHelper = new DatabaseHelper(ProfileActivity.this);
+//                            int rowsUpdated = databaseHelper.updateUserLocation(userEmail, latitude, longitude);
+//
+//                            if (rowsUpdated > 0) {
+//                                // Open Google Maps with the location
+//                                Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longitude + "?q=" + latitude + "," + longitude);
+//                                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+//                                mapIntent.setPackage("com.google.android.apps.maps");
+//
+//                                if (mapIntent.resolveActivity(getPackageManager()) != null) {
+//                                    startActivity(mapIntent);
+//                                } else {
+//                                    Toast.makeText(ProfileActivity.this, "Google Maps app not installed", Toast.LENGTH_SHORT).show();
+//                                }
+//                            } else {
+//                                Toast.makeText(ProfileActivity.this, "Failed to save location", Toast.LENGTH_SHORT).show();
+//                            }
+//                        }else {
+//                            Toast.makeText(ProfileActivity.this, "Unable to get location", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                });
 //    }
 
-//    private void initializeViews() {
-//        nameTextView = findViewById(R.id.nameTextView);
-//        emailTextView = findViewById(R.id.emailTextView);
-//        phoneTextView = findViewById(R.id.phoneTextView);
-//        dobTextView = findViewById(R.id.dobTextView);
-//        dojTextView = findViewById(R.id.dojTextView);
-//        departmentTextView = findViewById(R.id.departmentTextView);
-//        designationTextView = findViewById(R.id.designationTextView);
-//        cityTextView = findViewById(R.id.cityTextView);
-//        stateTextView = findViewById(R.id.stateTextView);
-//        countryTextView = findViewById(R.id.countryTextView);
-//
-//    }
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission was granted, you can access location
+                Toast.makeText(this, "Location permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                // Permission denied
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+    }
+
 }
