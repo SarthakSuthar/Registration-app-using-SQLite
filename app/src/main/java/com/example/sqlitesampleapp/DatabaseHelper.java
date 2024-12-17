@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_NOTIFICATION_IMAGE = "image_url";
     private static final String KEY_NOTIFICATION_TIMESTAMP = "timestamp";
 
-    //long lati
+
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

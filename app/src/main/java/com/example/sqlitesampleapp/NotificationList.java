@@ -1,5 +1,9 @@
 package com.example.sqlitesampleapp;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +21,7 @@ public class NotificationList extends AppCompatActivity {
 
     private LinearLayout notificationsContainer;
     private DatabaseHelper databaseHelper;
+    private BroadcastReceiver notificationReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,8 +31,43 @@ public class NotificationList extends AppCompatActivity {
         notificationsContainer = findViewById(R.id.notificationsContainer);
         databaseHelper = new DatabaseHelper(this);
 
-        displayNotifications();
+        // Setup broadcast receiver
+        setupNotificationReceiver();
         
+        
+        displayNotifications();
+
+    }
+
+    private void setupNotificationReceiver() {
+        notificationReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if ((FireBaseMessagingService.NOTIFICATION_RECEIVED_ACTION.equals(intent.getAction()))){
+                    runOnUiThread(() -> {
+                        // Clear existing views and reload notifications
+                        notificationsContainer.removeAllViews();
+                        displayNotifications();
+                    });
+                }
+            }
+        };
+
+        // Register receiver
+        IntentFilter filter = new IntentFilter(FireBaseMessagingService.NOTIFICATION_RECEIVED_ACTION);
+        registerReceiver(notificationReceiver, filter);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Unregister receiver to prevent memory leaks
+        if (notificationReceiver != null) {
+            unregisterReceiver(notificationReceiver);
+        }
+
     }
 
     private void displayNotifications() {
@@ -60,6 +100,4 @@ public class NotificationList extends AppCompatActivity {
             }
         }
     }
-
-
 }

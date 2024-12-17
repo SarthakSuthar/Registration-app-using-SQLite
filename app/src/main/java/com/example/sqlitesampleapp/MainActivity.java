@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
 
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -24,6 +25,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.Objects;
@@ -37,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FirebaseApp.initializeApp(this);
 
         databaseHelper = new DatabaseHelper(this);
 
@@ -52,6 +56,20 @@ public class MainActivity extends AppCompatActivity {
                 performSignIn(emailInput,passwordInput);
             }
         });
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("FCM Token", "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+
+                    // Get the FCM token
+                    String token = task.getResult();
+                    Log.d("FCM Token", "Token: " + token);
+
+                    // You can save the token to your server or SharedPreferences
+                });
 
 
         //new user
