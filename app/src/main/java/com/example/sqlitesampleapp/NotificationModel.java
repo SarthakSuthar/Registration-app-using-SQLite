@@ -12,14 +12,14 @@ public class NotificationModel implements Serializable {
         // Empty constructor needed for Firebase
     }
     public NotificationModel(String title, String message, String imageUrl, String timestamp) {
-//        this.title = title;
-        this.setTitle(title);
-//        this.message = message;
-        this.setMessage(message);
-//        this.imageUrl = imageUrl;
-        this.setImageUrl(imageUrl);
-//        this.timestamp = timestamp;
-        this.setTimestamp(timestamp);
+        this.title = title;
+//        this.setTitle(title);
+        this.message = message;
+//        this.setMessage(message);
+        this.imageUrl = imageUrl;
+//        this.setImageUrl(imageUrl);
+        this.timestamp = timestamp;
+//        this.setTimestamp(timestamp);
     }
 
     public String getTitle() {

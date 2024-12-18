@@ -41,13 +41,25 @@ public class FireBaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().isEmpty()) {
             Log.d(TAG, "Data Payload: " + remoteMessage.getData());
 
-            Map<String, String> data = remoteMessage.getData();
-            String title = data.get("title");
-            String message = data.get("message");
-            String imageUrl = data.get("image_url");
+//            Map<String, String> data = remoteMessage.getData();
+//            String title = data.get("title");
+//            String message = data.get("message");
+//            String imageUrl = data.get("image_url");
+
+            String title = remoteMessage.getData().get("title");
+            String message = remoteMessage.getData().get("message");
+            String imageUrl = remoteMessage.getData().get("image_url");
+
+            // Create NotificationModel
+            NotificationModel notificationModel = new NotificationModel(
+                    title,           // Title from payload
+                    message,          // Message from payload
+                    imageUrl,         // Image URL from payload
+                    getCurrentTimestamp() // Generate current timestamp
+            );
 
             // Save notification to local storage
-            saveNotificationToDatabase(title, message, imageUrl);
+            saveNotificationToDatabase(notificationModel);
 
             // Create and show notification
             sendNotification(title, message, imageUrl);
@@ -72,22 +84,15 @@ public class FireBaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private void saveNotificationToDatabase(String title, String message, String imageUrl) {
+    private String getCurrentTimestamp() {
+        return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+                .format(new Date());
+    }
+
+    private void saveNotificationToDatabase(NotificationModel notificationModel) {
         DatabaseHelper databaseHelper = new DatabaseHelper(this);
 
         Log.d(TAG, "In SaveNotification");
-
-        // Generate timestamp
-        String timestamp = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
-                .format(new Date());
-
-        // Create notification model and save to database
-        NotificationModel notificationModel = new NotificationModel(
-                title,
-                message,
-                imageUrl,
-                timestamp
-        );
 
         long result = databaseHelper.saveNotification(notificationModel);
         if (result == -1) {

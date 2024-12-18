@@ -269,19 +269,6 @@ public class EditProfile extends AppCompatActivity implements DeleteConfirmation
                     finish();
                     return;
                 }
-//
-//            nameInput.setText(cursor.getString(nameIndex));
-//            emailInput.setText(cursor.getString(emailIndex));
-//            phoneNoInput.setText(cursor.getString(phoneIndex));
-//            dobInput.setText(cursor.getString(dobIndex));
-//            dojInput.setText(cursor.getString(dojIndex));
-//            departmentInput.setText(cursor.getString(departmentIndex));
-//            designationInput.setText(cursor.getString(designationIndex));
-//            cityInput.setText(cursor.getString(cityIndex));
-//            stateInput.setText(cursor.getString(stateIndex));
-//            countryInput.setText(cursor.getString(countryIndex));
-//            passwordInput.setText(cursor.getString(passwordIndex));
-//            confirmPasswordInput.setText(cursor.getString(confirmPasswordIndex));
 
                 safeSetText(nameInput, cursor, nameIndex);
                 safeSetText(emailInput, cursor, emailIndex);
