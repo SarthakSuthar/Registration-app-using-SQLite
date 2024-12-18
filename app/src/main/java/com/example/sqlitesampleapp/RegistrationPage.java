@@ -113,6 +113,7 @@ public class RegistrationPage extends AppCompatActivity {
                                     Toast.makeText(RegistrationPage.this, "Registration Successful", Toast.LENGTH_SHORT).show();
 
                                     requestLocationPermission();
+                                    databaseHelper.updateUserLocation(email, latitude, longitude);
 
                                     Intent intent = new Intent(RegistrationPage.this, ProfileActivity.class);
                                     intent.putExtra("EMAIL", email);
@@ -124,21 +125,24 @@ public class RegistrationPage extends AppCompatActivity {
                             }
                         });
             } else {
+
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+
                 // If location permission not granted, pass 0,0
-                long registrationResult = databaseHelper.addUser(name, email, phoneNo, dob, doj,
-                        department, designation, city, state, country,
-                        password, 0, 0);
-
-                if (registrationResult > 0) {
-                    Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show();
-
-                    Intent intent = new Intent(RegistrationPage.this, ProfileActivity.class);
-                    intent.putExtra("EMAIL", email);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Toast.makeText(this, "Registration Failed", Toast.LENGTH_SHORT).show();
-                }
+//                long registrationResult = databaseHelper.addUser(name, email, phoneNo, dob, doj,
+//                        department, designation, city, state, country,
+//                        password, 0, 0);
+//
+//                if (registrationResult > 0) {
+//                    Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show();
+//
+//                    Intent intent = new Intent(RegistrationPage.this, ProfileActivity.class);
+//                    intent.putExtra("EMAIL", email);
+//                    startActivity(intent);
+//                    finish();
+//                } else {
+//                    Toast.makeText(this, "Registration Failed", Toast.LENGTH_SHORT).show();
+//                }
             }
         }
     }

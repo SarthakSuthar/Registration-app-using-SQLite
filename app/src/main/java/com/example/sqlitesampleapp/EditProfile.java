@@ -1,7 +1,10 @@
 package com.example.sqlitesampleapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -9,7 +12,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Calendar;
@@ -34,8 +41,9 @@ public class EditProfile extends AppCompatActivity implements DeleteConfirmation
     private Button deleteBtn;
 
     private DatabaseHelper databaseHelper;
-    private Calendar calendar;
     private String userEmail;
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +63,6 @@ public class EditProfile extends AppCompatActivity implements DeleteConfirmation
         initializeViews();
         
         loadUserData();
-
-//        setUpDatePicker();
 
         saveBtn = findViewById(R.id.saveBtn);
 
@@ -119,6 +125,26 @@ public class EditProfile extends AppCompatActivity implements DeleteConfirmation
             int result = databaseHelper.updateUser(email, name, phoneNo, dob, doj, department,
                     designation, city, state, country);
 
+            FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.getLastLocation()
+                        .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                double latitude = location != null ? location.getLatitude() : 0.0;
+                                double longitude = location != null ? location.getLongitude() : 0.0;
+
+                                requestLocationPermission();
+                                databaseHelper.updateUserLocation(email, latitude, longitude);
+                            }
+                        });
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+
+            }
+
             if (result > 0){
                 Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(EditProfile.this, ProfileActivity.class);
@@ -129,6 +155,14 @@ public class EditProfile extends AppCompatActivity implements DeleteConfirmation
                 Toast.makeText(this, "Error updating profile", Toast.LENGTH_SHORT).show();
             }
         }
+
+    }
+
+    private void requestLocationPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            Toast.makeText(this, "Location permission is required for user registration.", Toast.LENGTH_SHORT).show();
+        }
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
     }
 
     private boolean validateInputs(String name, String email, String phoneNo, String dob, String doj, String department, String designation, String city, String state, String country, String password, String confirmPassword) {
