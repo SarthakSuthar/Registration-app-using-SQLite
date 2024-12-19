@@ -19,7 +19,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.util.Calendar;
 import java.util.Objects;
 
 public class EditProfile extends AppCompatActivity implements DeleteConfirmationFragment.DeleteConfirmationListener {

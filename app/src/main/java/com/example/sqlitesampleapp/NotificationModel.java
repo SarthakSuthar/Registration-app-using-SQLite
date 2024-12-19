@@ -1,6 +1,9 @@
 package com.example.sqlitesampleapp;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class NotificationModel implements Serializable {
     private String title;
@@ -23,7 +26,7 @@ public class NotificationModel implements Serializable {
     }
 
     public String getTitle() {
-        return title;
+        return title != null ? title : "No Title";
     }
 
     public void setTitle(String title) {
@@ -31,7 +34,7 @@ public class NotificationModel implements Serializable {
     }
 
     public String getMessage() {
-        return message;
+        return message != null ? message : "No Message";
     }
 
     public void setMessage(String message) {
@@ -39,7 +42,7 @@ public class NotificationModel implements Serializable {
     }
 
     public String getImageUrl() {
-        return imageUrl;
+        return imageUrl != null ? imageUrl : "";
     }
 
     public void setImageUrl(String imageUrl) {
@@ -47,11 +50,16 @@ public class NotificationModel implements Serializable {
     }
 
     public String getTimestamp() {
-        return timestamp;
+        return timestamp != null ? timestamp : getCurrentTimestamp();
     }
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
+    // Helper method to get current timestamp
+    private String getCurrentTimestamp() {
+        return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+                .format(new Date());
+    }
 }

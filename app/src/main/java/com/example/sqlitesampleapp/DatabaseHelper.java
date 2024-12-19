@@ -243,62 +243,66 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public long saveNotification(NotificationModel notification) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_NOTIFICATION_TITLE, notification.getTitle());
-        values.put(KEY_NOTIFICATION_MESSAGE, notification.getMessage());
-        values.put(KEY_NOTIFICATION_IMAGE, notification.getImageUrl());
-        values.put(KEY_NOTIFICATION_TIMESTAMP, notification.getTimestamp());
 
-        return db.insert(TABLE_NOTIFICATIONS, null, values);
+        try {
+            // Comprehensive logging
+            Log.d("DatabaseHelper", "Attempting to save notification:");
+            Log.d("DatabaseHelper", "Title: " + notification.getTitle());
+            Log.d("DatabaseHelper", "Message: " + notification.getMessage());
+            Log.d("DatabaseHelper", "Image URL: " + notification.getImageUrl());
+            Log.d("DatabaseHelper", "Timestamp: " + notification.getTimestamp());
+
+            // Ensure values are not null
+            values.put(KEY_NOTIFICATION_TITLE,
+                    notification.getTitle() != null ? notification.getTitle() : "");
+            values.put(KEY_NOTIFICATION_MESSAGE,
+                    notification.getMessage() != null ? notification.getMessage() : "");
+            values.put(KEY_NOTIFICATION_IMAGE,
+                    notification.getImageUrl() != null ? notification.getImageUrl() : "");
+            values.put(KEY_NOTIFICATION_TIMESTAMP,
+                    notification.getTimestamp() != null ? notification.getTimestamp() : "");
+
+            // Insert and log result
+            long result = db.insert(TABLE_NOTIFICATIONS, null, values);
+            Log.d("DatabaseHelper", "Notification save result: " + result);
+
+            return result;
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error saving notification", e);
+            return -1;
+        }
     }
 
     public List<NotificationModel> getAllNotifications() {
         List<NotificationModel> notifications = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(TABLE_NOTIFICATIONS,
-                null, null, null, null, null,
-                KEY_NOTIFICATION_TIMESTAMP + " DESC");
+        try{
+            Log.d("DatabaseHelper", "Database is open: " + db.isOpen());
 
-//        if (cursor.moveToFirst()) {
-//            do {
-//                NotificationModel notification = new NotificationModel(
-//                        cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_TITLE)),
-//                        cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_MESSAGE)),
-//                        cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_IMAGE)),
-//                        cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_TIMESTAMP))
-//                );
-//                notifications.add(notification);
-//            } while (cursor.moveToNext());
-//        }
+            // Check if database exists
+            if (db == null) {
+                Log.e("DatabaseHelper", "Database is null");
+                return notifications;
+            }
 
-//        if (cursor != null) {
-//            try {
-//                if (cursor.moveToFirst()) {
-//                    do {
-//                        NotificationModel notification = new NotificationModel(
-//                                cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_TITLE)),
-//                                cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_MESSAGE)),
-//                                cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_IMAGE)),
-//                                cursor.getString(cursor.getColumnIndex(KEY_NOTIFICATION_TIMESTAMP))
-//                        );
-//                        notifications.add(notification);
-//                    } while (cursor.moveToNext());
-//                }
-//            } finally {
-//                cursor.close();
-//            }
-//        }
+            Cursor cursor = db.query(TABLE_NOTIFICATIONS,
+                    null, null, null, null, null,
+                    KEY_NOTIFICATION_TIMESTAMP + " DESC");
 
-        if (cursor != null) {
-            try {
-                int titleIndex = cursor.getColumnIndex(KEY_NOTIFICATION_TITLE);
-                int messageIndex = cursor.getColumnIndex(KEY_NOTIFICATION_MESSAGE);
-                int imageIndex = cursor.getColumnIndex(KEY_NOTIFICATION_IMAGE);
-                int timestampIndex = cursor.getColumnIndex(KEY_NOTIFICATION_TIMESTAMP);
+            Log.d("DatabaseHelper", "Cursor count: " + (cursor != null ? cursor.getCount() : "null cursor"));
 
-                // Check if column indices are valid
-                if (titleIndex != -1 && messageIndex != -1 &&
-                        imageIndex != -1 && timestampIndex != -1) {
+            if (cursor != null) {
+                try {
+                    int titleIndex = cursor.getColumnIndex(KEY_NOTIFICATION_TITLE);
+                    int messageIndex = cursor.getColumnIndex(KEY_NOTIFICATION_MESSAGE);
+                    int imageIndex = cursor.getColumnIndex(KEY_NOTIFICATION_IMAGE);
+                    int timestampIndex = cursor.getColumnIndex(KEY_NOTIFICATION_TIMESTAMP);
+
+                    Log.d("DatabaseHelper", "Column indices - Title: " + titleIndex +
+                            ", Message: " + messageIndex +
+                            ", Image: " + imageIndex +
+                            ", Timestamp: " + timestampIndex);
 
                     while (cursor.moveToNext()) {
                         String title = cursor.isNull(titleIndex) ? "" : cursor.getString(titleIndex);
@@ -306,21 +310,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         String imageUrl = cursor.isNull(imageIndex) ? "" : cursor.getString(imageIndex);
                         String timestamp = cursor.isNull(timestampIndex) ? "" : cursor.getString(timestampIndex);
 
+                        Log.d("DatabaseHelper", "Notification - Title: " + title +
+                                ", Message: " + message +
+                                ", Image: " + imageUrl +
+                                ", Timestamp: " + timestamp);
+
                         NotificationModel notification = new NotificationModel(
                                 title, message, imageUrl, timestamp
                         );
                         notifications.add(notification);
                     }
-                } else {
-                    Log.e("DatabaseHelper", "Invalid column indices in cursor");
+
+                } catch (Exception e) {
+                    Log.e("DatabaseHelper", "Error reading notifications", e);
+                } finally {
+                    cursor.close();
                 }
-            } catch (Exception e) {
-                Log.e("DatabaseHelper", "Error reading notifications", e);
-            } finally {
-                cursor.close();
             }
+
+        }catch (Exception e) {
+            Log.e("DatabaseHelper", "General error in getAllNotifications", e);
         }
 
+
+        Log.d("DatabaseHelper", "Total notifications retrieved: " + notifications.size());
         return notifications;
     }
 }
